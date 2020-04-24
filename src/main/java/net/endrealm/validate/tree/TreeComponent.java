@@ -1,6 +1,7 @@
 package net.endrealm.validate.tree;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import net.endrealm.validate.utils.ListUtils;
 
 import java.util.Comparator;
@@ -14,6 +15,7 @@ import java.util.function.Consumer;
 @Data
 public class TreeComponent<T> {
     private final Set<TreeComponent<T>> parents = new TreeSet<>(Comparator.comparingInt(TreeComponent::getWeight));
+    @EqualsAndHashCode.Exclude
     private final Set<TreeComponent<T>> children = new TreeSet<>(Comparator.comparingInt(TreeComponent::getWeight));
     private final int weight;
     private T value;
@@ -56,11 +58,16 @@ public class TreeComponent<T> {
         if(!ListUtils.match(parents, data.getFullFilledParents()))
             return;
 
+        boolean errored = false;
         try {
             ifPresent(consumer);
         } catch (Exception ex) {
             treeData.getExceptions().add(ex);
+            errored = true;
         }
+
+        if(errored)
+            return;
 
         for (TreeComponent<T> child: children) {
             child.foreach(consumer, treeData, this);
