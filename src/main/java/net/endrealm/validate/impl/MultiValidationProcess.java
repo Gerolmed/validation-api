@@ -1,0 +1,40 @@
+package net.endrealm.validate.impl;
+
+import lombok.*;
+import net.endrealm.validate.api.ValidationProcess;
+import net.endrealm.validate.exceptions.ValidationException;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ *
+ */
+@ToString
+@EqualsAndHashCode
+@Getter
+@Setter
+public class MultiValidationProcess implements ValidationProcess<Object> {
+    private final Class<?> container;
+    private final List<SimpleValidationProcess<Object>> methods;
+    private Object containerObject;
+
+    public MultiValidationProcess(Class<?> container, List<Method> methods) {
+        this.container = container;
+        this.methods = methods.stream().map(method -> new SimpleValidationProcess<>(container, method)).collect(Collectors.toList());
+    }
+
+    @Override
+    public void validate(Object object) throws ValidationException {
+        for (SimpleValidationProcess<Object> process : methods) {
+            if(process.supports(object.getClass()))
+                process.validate(object);
+        }
+    }
+
+    @Override
+    public boolean supports(Class<?> aClass) {
+        return true;
+    }
+}
