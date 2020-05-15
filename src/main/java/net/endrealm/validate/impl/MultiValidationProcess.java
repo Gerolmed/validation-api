@@ -26,7 +26,7 @@ public class MultiValidationProcess implements ValidationProcess<Object> {
     }
 
     @Override
-    public void validate(Object object) throws ValidationException {
+    public void validate(Object object) throws Exception {
         for (SimpleValidationProcess<Object> process : methods) {
             if(process.supports(object.getClass())){
                 process.validate(object);

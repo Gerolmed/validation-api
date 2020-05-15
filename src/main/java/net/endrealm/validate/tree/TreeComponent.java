@@ -42,17 +42,17 @@ public class TreeComponent<T> {
         return value == null;
     }
 
-    public boolean ifPresent(Consumer<T> onValue) {
+    public boolean ifPresent(ConsumerThrow<T> onValue) throws Exception {
         if(isEmpty()) return false;
         onValue.accept(value);
         return true;
     }
 
-    public void foreach(Consumer<T> consumer, TreeData<T> treeData) {
+    public void foreach(ConsumerThrow<T> consumer, TreeData<T> treeData) {
         foreach(consumer, treeData, null);
     }
 
-    public void foreach(Consumer<T> consumer, TreeData<T> treeData, TreeComponent<T> parent) {
+    public void foreach(ConsumerThrow<T> consumer, TreeData<T> treeData, TreeComponent<T> parent) {
         TreeData.ComponentData<T> data = treeData.getData(this);
 
         if(parent != null)
@@ -75,5 +75,9 @@ public class TreeComponent<T> {
         for (TreeComponent<T> child: children) {
             child.foreach(consumer, treeData, this);
         }
+    }
+
+    public interface ConsumerThrow<T> {
+        void accept(T value) throws Exception;
     }
 }

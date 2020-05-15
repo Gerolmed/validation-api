@@ -80,7 +80,7 @@ public class ValidationCoreImpl implements ValidationCore {
                 Object instance = constructor.newInstance(paramValues);
                 beans.put(key, instance);
                 component.ifPresent(validationProcess -> validationProcess.setContainerObject(instance));
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -110,7 +110,7 @@ public class ValidationCoreImpl implements ValidationCore {
                 if(e.supports(object.getClass()))
                     //noinspection unchecked,rawtypes,rawtypes
                     ((ValidationProcess) e).validate(object);
-            },treeData);
+            }, treeData);
 
             errors.addAll(treeData.getExceptions());
         }

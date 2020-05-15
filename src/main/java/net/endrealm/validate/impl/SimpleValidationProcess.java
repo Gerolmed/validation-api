@@ -18,7 +18,7 @@ public class SimpleValidationProcess<T> implements ValidationProcess<T> {
     private Object containerObject;
 
     @Override
-    public void validate(T object) throws ValidationException {
+    public void validate(T object) throws Exception {
         try {
             boolean access = method.isAccessible();
             method.setAccessible(true);
@@ -30,8 +30,9 @@ public class SimpleValidationProcess<T> implements ValidationProcess<T> {
 
             method.setAccessible(access);
 
-        } catch (SecurityException | IllegalAccessException | InvocationTargetException ignored) {
-
+        } catch (SecurityException | IllegalAccessException ignored) { }
+        catch (InvocationTargetException ex) {
+            throw (Exception) ex.getTargetException();
         }
     }
 

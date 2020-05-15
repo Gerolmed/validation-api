@@ -17,6 +17,8 @@ public class TestLoad {
 
         factory.autoInject(new UserServiceImpl());
         ValidationCore core = factory.createCore(ValidationSettings.builder().addPaths("net.endrealm.validate.test.validators").build());
+
+
         String[] names = {"Agatha", "James", "Kevin", "Alfred","Henry"};
         for (String name: names) {
             System.out.printf("%s: %s\n", name, core.isValidSimple(name)+"");
