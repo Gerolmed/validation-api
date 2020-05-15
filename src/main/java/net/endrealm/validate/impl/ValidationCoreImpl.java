@@ -4,6 +4,7 @@ import lombok.Data;
 import net.endrealm.validate.api.Injection;
 import net.endrealm.validate.api.ValidationCore;
 import net.endrealm.validate.api.ValidationProcess;
+import net.endrealm.validate.exceptions.SkipValidate;
 import net.endrealm.validate.exceptions.ValidationException;
 import net.endrealm.validate.tree.TreeComponent;
 import net.endrealm.validate.tree.TreeData;
@@ -114,6 +115,7 @@ public class ValidationCoreImpl implements ValidationCore {
 
             errors.addAll(treeData.getExceptions());
         }
+        errors.removeIf(e -> SkipValidate.class.isAssignableFrom(e.getClass()));
         return errors;
     }
 
