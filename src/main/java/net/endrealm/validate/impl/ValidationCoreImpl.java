@@ -117,6 +117,32 @@ public class ValidationCoreImpl implements ValidationCore {
         return errors;
     }
 
+
+    @Override
+    public <T extends ValidationException> List<T> isValid(Object object, Class<T> errorClass) throws Exception {
+        Pair<List<T>, List<Exception>> result = isValidAllEx(object, errorClass);
+
+        if(!result.getValue().isEmpty())
+            throw result.getValue().get(0);
+        return result.getKey();
+    }
+
+    @Override
+    public <T extends ValidationException> Pair<List<T>, List<Exception>> isValidAllEx(Object object, Class<T> errorClass) {
+        List<Exception> errors = isValidEx(object);
+        List<T> validationExceptions = new ArrayList<>();
+        for (Exception ex : new ArrayList<>(errors)) {
+            if(!(errorClass.isAssignableFrom(ex.getClass()))) {
+                continue;
+            }
+            errors.remove(ex);
+            //noinspection unchecked
+            validationExceptions.add((T) ex);
+        }
+
+        return Pair.of(validationExceptions, errors);
+    }
+
     @Override
     public Pair<List<ValidationException>, List<Exception>> isValid(Object object) {
         List<Exception> errors = isValidEx(object);
