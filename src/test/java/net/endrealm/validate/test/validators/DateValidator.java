@@ -17,6 +17,12 @@ public class DateValidator {
     }
 
     @Validation
+    public void validate3(String date) {
+        System.out.println("Called Me");
+    }
+
+
+    @Validation
     public boolean validate2() {
         return true;
     }

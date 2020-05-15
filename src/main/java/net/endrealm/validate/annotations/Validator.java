@@ -12,5 +12,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Validator {
     Class<?>[] dependsOn() default {};
+
+    /**
+     * The lower the earlier.
+     */
     int priority() default 0;
 }

@@ -25,7 +25,7 @@ public class SimpleValidationProcess<T> implements ValidationProcess<T> {
 
             Object value = method.invoke(containerObject, object);
 
-            if(((Boolean) false).equals(value) || (value == null && method.getReturnType() != Void.class))
+            if(((Boolean) false).equals(value) || (value == null && method.getReturnType() != void.class))
                 throw new ValidationException(String.format("Method %s failed to validate %s", container.getName() +"::"+method.getName(), object.toString()));
 
             method.setAccessible(access);

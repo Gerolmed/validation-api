@@ -28,13 +28,20 @@ public class MultiValidationProcess implements ValidationProcess<Object> {
     @Override
     public void validate(Object object) throws ValidationException {
         for (SimpleValidationProcess<Object> process : methods) {
-            if(process.supports(object.getClass()))
+            if(process.supports(object.getClass())){
                 process.validate(object);
+            }
         }
     }
 
     @Override
     public boolean supports(Class<?> aClass) {
         return true;
+    }
+
+    public void setContainerObject(Object containerObject) {
+        for (SimpleValidationProcess<Object> process : methods) {
+            process.setContainerObject(containerObject);
+        }
     }
 }

@@ -2,9 +2,10 @@ package net.endrealm.validate.tree;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import net.endrealm.validate.utils.CompareUtils;
 import net.endrealm.validate.utils.ListUtils;
 
-import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -14,9 +15,11 @@ import java.util.function.Consumer;
  */
 @Data
 public class TreeComponent<T> {
-    private final Set<TreeComponent<T>> parents = new TreeSet<>(Comparator.comparingInt(TreeComponent::getWeight));
+
+    @ToString.Exclude
+    private final Set<TreeComponent<T>> parents = new TreeSet<>(CompareUtils.getCompare());
     @EqualsAndHashCode.Exclude
-    private final Set<TreeComponent<T>> children = new TreeSet<>(Comparator.comparingInt(TreeComponent::getWeight));
+    private final Set<TreeComponent<T>> children = new TreeSet<>(CompareUtils.getCompare());
     private final int weight;
     private T value;
 

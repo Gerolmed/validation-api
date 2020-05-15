@@ -7,6 +7,7 @@ import net.endrealm.validate.api.ValidationProcess;
 import net.endrealm.validate.exceptions.ValidationException;
 import net.endrealm.validate.tree.TreeComponent;
 import net.endrealm.validate.tree.TreeData;
+import net.endrealm.validate.utils.CompareUtils;
 import net.endrealm.validate.utils.Pair;
 
 import java.lang.reflect.Constructor;
@@ -35,7 +36,7 @@ public class ValidationCoreImpl implements ValidationCore {
         this.injections = injections;
 
         beans = new HashMap<>();
-        roots = new TreeSet<>(Comparator.comparingInt(TreeComponent::getWeight));
+        roots = new TreeSet<>(CompareUtils.getCompare());
         selectRoots();
 
         buildBeans();
@@ -45,7 +46,8 @@ public class ValidationCoreImpl implements ValidationCore {
     private void selectRoots() {
         roots.clear();
         for (TreeComponent<ValidationProcess<?>> component : validationTrees) {
-            if(component.isRoot()) roots.add(component);
+            if(component.isRoot())
+                roots.add(component);
         }
     }
 
