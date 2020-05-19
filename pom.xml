@@ -6,7 +6,7 @@
 
     <groupId>net.endrealm</groupId>
     <artifactId>validation-api</artifactId>
-    <version>1.0.pre-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>

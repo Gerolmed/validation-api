@@ -80,7 +80,7 @@ public class ValidationCoreImpl implements ValidationCore {
             try {
                 Object instance = constructor.newInstance(paramValues);
                 beans.put(key, instance);
-                component.ifPresent(validationProcess -> validationProcess.setContainerObject(instance));
+                component.ifPresentValue(validationProcess -> validationProcess.setContainerObject(instance));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -107,10 +107,11 @@ public class ValidationCoreImpl implements ValidationCore {
         for(TreeComponent<ValidationProcess<?>> root : roots) {
             TreeData<ValidationProcess<?>> treeData = new TreeData<>();
 
-            root.foreach(e-> {
-                if(e.supports(object.getClass()))
+            root.foreach( (executionData) -> {
+                ValidationProcess<?> validator = executionData.getValue();
+                if(validator.supports(object.getClass()))
                     //noinspection unchecked,rawtypes,rawtypes
-                    ((ValidationProcess) e).validate(object);
+                    ((ValidationProcess) validator).validate(object, executionData.getDownStreamContext());
             }, treeData);
 
             errors.addAll(treeData.getExceptions());

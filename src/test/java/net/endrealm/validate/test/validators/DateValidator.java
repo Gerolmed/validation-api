@@ -18,7 +18,6 @@ public class DateValidator {
 
     @Validation
     public void validate3(String date) {
-        System.out.println("Called Me");
     }
 
 

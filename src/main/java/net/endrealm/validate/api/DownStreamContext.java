@@ -15,9 +15,12 @@ public class DownStreamContext {
     private final Map<String, Object> inherited;
     private final Map<String, Object> newDefined;
 
+
+    public DownStreamContext() {
+        this(new HashMap<>());
+    }
     public DownStreamContext(Map<String, Object> inherited) {
-        this.inherited = Collections.unmodifiableMap(inherited);
-        this.newDefined = new HashMap<>();
+        this(inherited, new HashMap<>());
     }
 
     private DownStreamContext(Map<String, Object> mergedInherit, Map<String, Object> mergedDefined) {
@@ -45,7 +48,7 @@ public class DownStreamContext {
     public <T> Optional<T> get(String key, Class<T> tClass) {
         Object raw = getValue(key);
 
-        if(raw == null || tClass.isAssignableFrom(raw.getClass()))
+        if(raw == null || !tClass.isAssignableFrom(raw.getClass()))
             return Optional.empty();
 
         return Optional.of((T) raw);
@@ -69,5 +72,9 @@ public class DownStreamContext {
         }
 
         return new DownStreamContext(mergedInherit, mergedDefined);
+    }
+
+    public void put(String key, Object value) {
+        this.newDefined.put(key, value);
     }
 }

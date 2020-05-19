@@ -2,6 +2,7 @@ package net.endrealm.validate.factories;
 
 import net.endrealm.validate.annotations.Validation;
 import net.endrealm.validate.annotations.Validator;
+import net.endrealm.validate.api.DownStreamContext;
 import net.endrealm.validate.api.Injection;
 import net.endrealm.validate.api.ValidationProcess;
 import net.endrealm.validate.impl.MultiValidationProcess;
@@ -94,7 +95,15 @@ public class ValidationCoreFactory {
         List<Method> methods = ReflectionUtils.getAllMethodsAnnotated(pair.getKey(), Validation.class);
 
         methods.removeIf(method -> {
-            if(method.getParameterCount() != 1) {
+
+            boolean hasDownStream = getDownStreamIndex(method) != -1;
+
+            if(method.getParameterCount() == 2) {
+                if(!hasDownStream) {
+                    LOGGER.warning(String.format("Method %s has two parameters. Only validation object and a downstream object parameter are allowed though!", pair.getKey().getName() +"::"+method.getName()));
+                    return true;
+                }
+            } else if(method.getParameterCount() != 1) {
                 LOGGER.warning(String.format("Method %s does not have exactly one parameter and is going to be skipped!", pair.getKey().getName() +"::"+method.getName()));
                 return true;
             }
@@ -106,12 +115,40 @@ public class ValidationCoreFactory {
             return;
         }
         if(methods.size() == 1) {
+            Method method = methods.get(0);
             LOGGER.log(DEBUG, String.format("Single validate mode for %s", pair.getKey().getName()));
-            component.setValue(new SimpleValidationProcess<>(pair.getKey(), methods.get(0)));
+            component.setValue(new SimpleValidationProcess<>(pair.getKey(), method, getDownStreamIndex(method)));
             return;
         }
         LOGGER.log(DEBUG, String.format("Multi validate mode for %s", pair.getKey().getName()));
-        component.setValue(new MultiValidationProcess(pair.getKey(), methods));
+        component.setValue(
+                new MultiValidationProcess(
+                        pair.getKey(),
+                        methods.stream().map(
+                                method ->
+                                        new SimpleValidationProcess<>(
+                                                pair.getKey(),
+                                                method,
+                                                getDownStreamIndex(method)
+                                        )
+                        ).collect(Collectors.toList())
+                )
+        );
+    }
+
+    private int getDownStreamIndex(Method method) {
+
+        int index = -1;
+
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        for (int i = 0; i < parameterTypes.length; i++) {
+            Class<?> param = parameterTypes[i];
+            if(DownStreamContext.class.isAssignableFrom(param)) {
+                index = i;
+            }
+        }
+
+        return index;
     }
 
     private Set<Class<?>> collect(ValidationSettings settings) {

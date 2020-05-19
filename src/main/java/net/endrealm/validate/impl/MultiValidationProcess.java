@@ -1,6 +1,7 @@
 package net.endrealm.validate.impl;
 
 import lombok.*;
+import net.endrealm.validate.api.DownStreamContext;
 import net.endrealm.validate.api.ValidationProcess;
 import net.endrealm.validate.exceptions.ValidationException;
 
@@ -20,16 +21,16 @@ public class MultiValidationProcess implements ValidationProcess<Object> {
     private final List<SimpleValidationProcess<Object>> methods;
     private Object containerObject;
 
-    public MultiValidationProcess(Class<?> container, List<Method> methods) {
+    public MultiValidationProcess(Class<?> container, List<SimpleValidationProcess<Object>> methods) {
         this.container = container;
-        this.methods = methods.stream().map(method -> new SimpleValidationProcess<>(container, method)).collect(Collectors.toList());
+        this.methods = methods; // methods.stream().map(method -> new SimpleValidationProcess<>(container, method)).collect(Collectors.toList())
     }
 
     @Override
-    public void validate(Object object) throws Exception {
+    public void validate(Object object, DownStreamContext downStreamContext) throws Exception {
         for (SimpleValidationProcess<Object> process : methods) {
             if(process.supports(object.getClass())){
-                process.validate(object);
+                process.validate(object, downStreamContext);
             }
         }
     }

@@ -3,6 +3,8 @@ package net.endrealm.validate.tree;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.endrealm.validate.api.DownStreamContext;
+import net.endrealm.validate.impl.ExecutionData;
 import net.endrealm.validate.utils.CompareUtils;
 import net.endrealm.validate.utils.ListUtils;
 
@@ -42,17 +44,23 @@ public class TreeComponent<T> {
         return value == null;
     }
 
-    public boolean ifPresent(ConsumerThrow<T> onValue) throws Exception {
+    public boolean ifPresent(ConsumerThrow<ExecutionData<T>> onValue, DownStreamContext downStreamContext) throws Exception {
+        if(isEmpty()) return false;
+        onValue.accept(new ExecutionData<>(value, downStreamContext));
+        return true;
+    }
+
+    public boolean ifPresentValue(ConsumerThrow<T> onValue) throws Exception {
         if(isEmpty()) return false;
         onValue.accept(value);
         return true;
     }
 
-    public void foreach(ConsumerThrow<T> consumer, TreeData<T> treeData) {
+    public void foreach(ConsumerThrow<ExecutionData<T>> consumer, TreeData<T> treeData) {
         foreach(consumer, treeData, null);
     }
 
-    public void foreach(ConsumerThrow<T> consumer, TreeData<T> treeData, TreeComponent<T> parent) {
+    public void foreach(ConsumerThrow<ExecutionData<T>> consumer, TreeData<T> treeData, TreeComponent<T> parent) {
         TreeData.ComponentData<T> data = treeData.getData(this);
 
         if(parent != null)
@@ -62,12 +70,16 @@ public class TreeComponent<T> {
             return;
 
         boolean errored = false;
+
+        DownStreamContext downStreamContext = data.collectDownStream(treeData);
         try {
-            ifPresent(consumer);
+            if(!data.isFinished())
+                ifPresent(consumer, downStreamContext);
         } catch (Exception ex) {
             treeData.getExceptions().add(ex);
             errored = true;
         }
+        data.setFinished(true);
 
         if(errored)
             return;
