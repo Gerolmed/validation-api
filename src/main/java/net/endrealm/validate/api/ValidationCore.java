@@ -24,4 +24,15 @@ public interface ValidationCore {
     <T extends ValidationException> Pair<List<T>, List<Exception>> isValidAllEx(Object object, Class<T> errorClass);
 
     Pair<List<ValidationException>,List<Exception>> isValid(Object object);
+
+
+
+
+    List<Exception> isValidEx(Object object, DownStreamContext initContext);
+
+    <T extends ValidationException> List<T> isValid(Object object, Class<T> errorClass, DownStreamContext initContext) throws Exception;
+
+    <T extends ValidationException> Pair<List<T>, List<Exception>> isValidAllEx(Object object, Class<T> errorClass, DownStreamContext initContext);
+
+    Pair<List<ValidationException>,List<Exception>> isValid(Object object, DownStreamContext initContext);
 }

@@ -16,6 +16,7 @@ public class TreeData<T> {
 
     private final Map<TreeComponent<T>, ComponentData<T>> dataMap = new HashMap<>();
     private final List<Exception> exceptions = new ArrayList<>();
+    private final DownStreamContext initContext;
 
     public ComponentData<T> getData(TreeComponent<T> treeComponent) {
         return dataMap.computeIfAbsent(treeComponent, treeComponent1 -> new ComponentData<>());
@@ -28,6 +29,11 @@ public class TreeData<T> {
         private boolean finished;
 
         public DownStreamContext collectDownStream(TreeData<T> treeData) {
+
+            if(fullFilledParents.isEmpty()) {
+                this.downStreamContext = treeData.getInitContext().getSubStream();
+                return downStreamContext;
+            }
 
             this.downStreamContext = new DownStreamContext()
                     .merge(

@@ -1,6 +1,7 @@
 package net.endrealm.validate.impl;
 
 import lombok.Data;
+import net.endrealm.validate.api.DownStreamContext;
 import net.endrealm.validate.api.Injection;
 import net.endrealm.validate.api.ValidationCore;
 import net.endrealm.validate.api.ValidationProcess;
@@ -103,9 +104,30 @@ public class ValidationCoreImpl implements ValidationCore {
 
     @Override
     public List<Exception> isValidEx(Object object) {
+        return isValidEx(object, new DownStreamContext());
+    }
+
+
+    @Override
+    public <T extends ValidationException> List<T> isValid(Object object, Class<T> errorClass) throws Exception {
+        return isValid(object, errorClass, new DownStreamContext());
+    }
+
+    @Override
+    public <T extends ValidationException> Pair<List<T>, List<Exception>> isValidAllEx(Object object, Class<T> errorClass) {
+        return isValidAllEx(object, errorClass, new DownStreamContext());
+    }
+
+    @Override
+    public Pair<List<ValidationException>, List<Exception>> isValid(Object object) {
+        return isValid(object, new DownStreamContext());
+    }
+
+    @Override
+    public List<Exception> isValidEx(Object object, DownStreamContext initContext) {
         List<Exception> errors = new ArrayList<>();
         for(TreeComponent<ValidationProcess<?>> root : roots) {
-            TreeData<ValidationProcess<?>> treeData = new TreeData<>();
+            TreeData<ValidationProcess<?>> treeData = new TreeData<>(initContext);
 
             root.foreach( (executionData) -> {
                 ValidationProcess<?> validator = executionData.getValue();
@@ -120,10 +142,9 @@ public class ValidationCoreImpl implements ValidationCore {
         return errors;
     }
 
-
     @Override
-    public <T extends ValidationException> List<T> isValid(Object object, Class<T> errorClass) throws Exception {
-        Pair<List<T>, List<Exception>> result = isValidAllEx(object, errorClass);
+    public <T extends ValidationException> List<T> isValid(Object object, Class<T> errorClass, DownStreamContext initContext) throws Exception {
+        Pair<List<T>, List<Exception>> result = isValidAllEx(object, errorClass, initContext);
 
         if(!result.getValue().isEmpty())
             throw result.getValue().get(0);
@@ -131,8 +152,8 @@ public class ValidationCoreImpl implements ValidationCore {
     }
 
     @Override
-    public <T extends ValidationException> Pair<List<T>, List<Exception>> isValidAllEx(Object object, Class<T> errorClass) {
-        List<Exception> errors = isValidEx(object);
+    public <T extends ValidationException> Pair<List<T>, List<Exception>> isValidAllEx(Object object, Class<T> errorClass, DownStreamContext initContext) {
+        List<Exception> errors = isValidEx(object, initContext);
         List<T> validationExceptions = new ArrayList<>();
         for (Exception ex : new ArrayList<>(errors)) {
             if(!(errorClass.isAssignableFrom(ex.getClass()))) {
@@ -147,8 +168,8 @@ public class ValidationCoreImpl implements ValidationCore {
     }
 
     @Override
-    public Pair<List<ValidationException>, List<Exception>> isValid(Object object) {
-        List<Exception> errors = isValidEx(object);
+    public Pair<List<ValidationException>, List<Exception>> isValid(Object object, DownStreamContext initContext) {
+        List<Exception> errors = isValidEx(object, initContext);
         List<ValidationException> validationExceptions = new ArrayList<>();
         for (Exception ex : new ArrayList<>(errors)) {
             if(!(ex instanceof ValidationException)) {

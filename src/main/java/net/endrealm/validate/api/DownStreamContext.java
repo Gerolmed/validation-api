@@ -67,6 +67,10 @@ public class DownStreamContext {
         Map<String, Object> mergedDefined= new HashMap<>(newDefined);
 
         for(DownStreamContext context : contexts) {
+
+            if(context == null)
+                continue;
+
             mergedInherit.putAll(context.getInherited());
             mergedDefined.putAll(context.getNewDefined());
         }
